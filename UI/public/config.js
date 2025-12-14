@@ -7,6 +7,6 @@ window.config = {
         clientId: 'your-client-id'
     },
     api: {
-        baseUrl: 'http://localhost:8081/api'
+        baseUrl: 'http://localhost:2000/v-app'
     }
 };

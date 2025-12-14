@@ -28,10 +28,9 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 
 	@Autowired
 	ApplicationCacheConfiguration configuration;
-	
+
 	@Value("${feature.mappings.coreSystemConfig.dynamicDetails.skipEntityIdUrls}")
 	List<String> skipEntityIdUrls;
-
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -59,15 +58,13 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 			}
 
 			MDC.put(Constants.AUTHORIZATION_HEADER, request.getHeader(Constants.AUTHORIZATION_HEADER));
-			//MDC.put(Constants.SOURCE, request.getHeader(Constants.SOURCE));
-			
+			// MDC.put(Constants.SOURCE, request.getHeader(Constants.SOURCE));
+
 			MDC.put(Constants.SOURCE,
-					request.getHeader(Constants.SOURCE) != null
-							&& !request.getHeader(Constants.SOURCE).equals("")
-									? request.getHeader(Constants.SOURCE)
-									: Constants.defaultSource);
-			
-			
+					request.getHeader(Constants.SOURCE) != null && !request.getHeader(Constants.SOURCE).equals("")
+							? request.getHeader(Constants.SOURCE)
+							: Constants.defaultSource);
+
 			MDC.put(Constants.txnIdHeader,
 					(request.getHeader(Constants.txnIdHeader) != null
 							&& !request.getHeader(Constants.txnIdHeader).equals(""))
@@ -92,10 +89,9 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 									? request.getHeader(Constants.userFullNameHeader)
 									: "systemAdmin");
 			MDC.put("isProxyNumberSearch",
-					request.getHeader("isProxyNumberSearch") != null
-						? request.getHeader("isProxyNumberSearch") 
-						: "false");
-						
+					request.getHeader("isProxyNumberSearch") != null ? request.getHeader("isProxyNumberSearch")
+							: "false");
+
 			MDC.put(Constants.userIdHeader,
 					request.getHeader(Constants.userIdHeader) != null
 							&& !request.getHeader(Constants.userIdHeader).equals("")
@@ -141,15 +137,7 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 									? request.getHeader(Constants.languageIdHeader)
 									: Constants.defaultLanguageId);
 
-			MDC.put(Constants.serviceIdHeader, request.getHeader(Constants.serviceIdHeader));
-			MDC.put(Constants.serviceSeqIdHeader, request.getHeader(Constants.serviceSeqIdHeader));
-			MDC.put(Constants.accountIdHeader, request.getHeader(Constants.accountIdHeader));
-			MDC.put(Constants.accountSeqIdHeader, request.getHeader(Constants.accountSeqIdHeader));
-			MDC.put(Constants.profileIdHeader, request.getHeader(Constants.profileIdHeader));
-			MDC.put(Constants.profileSeqIdHeader, request.getHeader(Constants.profileSeqIdHeader));
-			MDC.put(Constants.profileCategoryHeader, request.getHeader(Constants.profileCategoryHeader));
 			MDC.put(Constants.functionIdHeader, request.getHeader(Constants.functionIdHeader));
-			MDC.put(Constants.subscriberLevelHeader, request.getHeader(Constants.subscriberLevelHeader));
 
 			MDC.put(Constants.authTypeHeader, request.getHeader(Constants.authTypeHeader));
 			MDC.put(Constants.biometricIdHeader, request.getHeader(Constants.biometricIdHeader));
@@ -164,51 +152,53 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 			}
 
 			// Mapping data source based on entity id
-						if (MDC.get(Constants.entityIdHeader) != null) {
-							if (configuration.getMappings().get("coreSystemConfig") != null && utils.validateToValue(
-									configuration.getMappings().get("coreSystemConfig").getDynamicDetails().get("multitenancy"),
-									"true")) {
-								// setting crm data source
-								if (configuration.getMappings().get("crmEntityIdDataSourceMapping") != null) {
-									if (utils.validateFiled(configuration.getMappings().get("crmEntityIdDataSourceMapping")
-											.getDynamicDetails().get("entityid-" + MDC.get(Constants.entityIdHeader)))) {
-										MDC.put(Constants.crm_db_instance,
-												configuration.getMappings().get("crmEntityIdDataSourceMapping").getDynamicDetails()
-														.get("entityid-" + MDC.get(Constants.entityIdHeader)));
-										log.info("entity-Id {} , crm-db-instance {}", MDC.get(Constants.entityIdHeader),
-												MDC.get(Constants.crm_db_instance));
-									} else {
-										// not having configured entity id
-										throw new CommonException(HttpConstants.CUSTOM_FIELD_VALIDATION, "Entity ID is not found for CRM DB");
-									}
-								}
-								// setting billing data source
-								if (configuration.getMappings().get("billinEntityIdDataSourceMapping") != null) {
-									if (utils.validateFiled(configuration.getMappings().get("billinEntityIdDataSourceMapping")
-											.getDynamicDetails().get("entityid-" + MDC.get(Constants.entityIdHeader)))) {
-										MDC.put(Constants.bill_db_instance,
-												configuration.getMappings().get("billinEntityIdDataSourceMapping")
-														.getDynamicDetails().get("entityid-" + MDC.get(Constants.entityIdHeader)));
-										log.info("entity-Id {} , billing-db-instance {}", MDC.get(Constants.entityIdHeader),
-												MDC.get(Constants.bill_db_instance));
-									} else {
-										// not having configured entity id
-										throw new CommonException(HttpConstants.CUSTOM_FIELD_VALIDATION, "Entity ID is not found for Billing DB");
-									}
-								}
-							} else {
-								MDC.put(Constants.crm_db_instance, Constants.initial_db_name);
-								MDC.put(Constants.bill_db_instance, Constants.initial_db_name);
-							}
+			if (MDC.get(Constants.entityIdHeader) != null) {
+				if (configuration.getMappings().get("coreSystemConfig") != null && utils.validateToValue(
+						configuration.getMappings().get("coreSystemConfig").getDynamicDetails().get("multitenancy"),
+						"true")) {
+					// setting crm data source
+					if (configuration.getMappings().get("crmEntityIdDataSourceMapping") != null) {
+						if (utils.validateFiled(configuration.getMappings().get("crmEntityIdDataSourceMapping")
+								.getDynamicDetails().get("entityid-" + MDC.get(Constants.entityIdHeader)))) {
+							MDC.put(Constants.crm_db_instance,
+									configuration.getMappings().get("crmEntityIdDataSourceMapping").getDynamicDetails()
+											.get("entityid-" + MDC.get(Constants.entityIdHeader)));
+							log.info("entity-Id {} , crm-db-instance {}", MDC.get(Constants.entityIdHeader),
+									MDC.get(Constants.crm_db_instance));
+						} else {
+							// not having configured entity id
+							throw new CommonException(HttpConstants.CUSTOM_FIELD_VALIDATION,
+									"Entity ID is not found for CRM DB");
 						}
-
-					} catch (CommonException e) {
-						throw new CommonException(HttpConstants.CUSTOM_FIELD_VALIDATION, e.getMessage());
-					} catch (Throwable e) {
-						log.error("Throwable Occured " + e.getMessage(), e);
 					}
+					// setting billing data source
+					if (configuration.getMappings().get("billinEntityIdDataSourceMapping") != null) {
+						if (utils.validateFiled(configuration.getMappings().get("billinEntityIdDataSourceMapping")
+								.getDynamicDetails().get("entityid-" + MDC.get(Constants.entityIdHeader)))) {
+							MDC.put(Constants.bill_db_instance,
+									configuration.getMappings().get("billinEntityIdDataSourceMapping")
+											.getDynamicDetails().get("entityid-" + MDC.get(Constants.entityIdHeader)));
+							log.info("entity-Id {} , billing-db-instance {}", MDC.get(Constants.entityIdHeader),
+									MDC.get(Constants.bill_db_instance));
+						} else {
+							// not having configured entity id
+							throw new CommonException(HttpConstants.CUSTOM_FIELD_VALIDATION,
+									"Entity ID is not found for Billing DB");
+						}
+					}
+				} else {
+					MDC.put(Constants.crm_db_instance, Constants.initial_db_name);
+					MDC.put(Constants.bill_db_instance, Constants.initial_db_name);
+				}
+			}
 
-		//return super.preHandle(request, response, handler);
+		} catch (CommonException e) {
+			throw new CommonException(HttpConstants.CUSTOM_FIELD_VALIDATION, e.getMessage());
+		} catch (Throwable e) {
+			log.error("Throwable Occured " + e.getMessage(), e);
+		}
+
+		// return super.preHandle(request, response, handler);
 		return true;
 	}
 
@@ -228,10 +218,6 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 		return result;
 	}
 
-
-	
-	
-	
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
@@ -272,4 +258,3 @@ public class RequestProcessingTimeInterceptor implements HandlerInterceptor {
 		}
 	}
 }
-

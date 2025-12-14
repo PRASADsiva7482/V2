@@ -1,4 +1,4 @@
-package com.va.v.v_app.service;
+package com.va.v.v_app.config.connector.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
