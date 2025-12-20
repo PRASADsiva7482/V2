@@ -31,7 +31,7 @@ public class PrimaryDataSourceConfig {
     public LocalContainerEntityManagerFactoryBean primaryEntityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dynamicCRMDataSource);
-        em.setPackagesToScan("com.va.v.v_app.model.primary");
+        em.setPackagesToScan("com.va.v.v_app.model.primary", "com.va.v.v_app.persistence.primary");
         em.setPersistenceUnitName("primary");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
