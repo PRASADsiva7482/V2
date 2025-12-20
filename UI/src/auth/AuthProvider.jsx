@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import keycloak from './keycloak';
 
 const AuthContext = createContext(null);
@@ -15,8 +15,15 @@ export const AuthProvider = ({ children }) => {
     const [authenticated, setAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const initialized = useRef(false);
 
     useEffect(() => {
+        // Prevent double execution in strict mode
+        if (initialized.current) {
+            return;
+        }
+        initialized.current = true;
+
         // Initialize Keycloak
         keycloak
             .init({
