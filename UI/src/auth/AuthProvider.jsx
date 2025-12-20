@@ -39,10 +39,15 @@ export const AuthProvider = ({ children }) => {
                     keycloak.loadUserProfile().then((profile) => {
                         setUser(profile);
                     });
+                    localStorage.setItem('keycloak-authenticated', 'true');
+                    localStorage.setItem('keycloak-obj', JSON.stringify(keycloak));
 
-                    // Setup token refresh
+                    // Setup token refresh using config values
+                    const tokenRefreshInterval = window.config?.session?.tokenRefreshInterval || 60000;
+                    const tokenMinValidity = window.config?.session?.tokenMinValidity || 70;
+
                     setInterval(() => {
-                        keycloak.updateToken(70).then((refreshed) => {
+                        keycloak.updateToken(tokenMinValidity).then((refreshed) => {
                             if (refreshed) {
                                 console.log('Token refreshed');
                             }
@@ -50,7 +55,7 @@ export const AuthProvider = ({ children }) => {
                             console.error('Failed to refresh token');
                             logout();
                         });
-                    }, 60000); // Check every minute
+                    }, tokenRefreshInterval);
                 }
 
                 setLoading(false);
